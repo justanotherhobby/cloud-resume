@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "Cloud Resume Challenge \u2014 visitor counter backend"
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.12
+    Environment:
+      Variables:
+        TABLE_NAME:
+          Ref: VisitorTable
+Resources:
+  VisitorCountFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: VisitorCountFunction
+      Handler: app.lambda_handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VisitorTable
+      Events:
+        GetCount:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: VisitorApi
+            Path: /count
+            Method: GET
+        OptionsCount:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: VisitorApi
+            Path: /count
+            Method: OPTIONS
+    Metadata:
+      SamResourceId: VisitorCountFunction
+  VisitorApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowOrigins:
+        - '*'
+        AllowMethods:
+        - GET
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+  VisitorTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: visitor-count
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+Outputs:
+  ApiEndpoint:
+    Description: Paste this URL into cloud-resume.html as API_URL
+    Value:
+      Fn::Sub: https://${VisitorApi}.execute-api.${AWS::Region}.amazonaws.com/prod/count
+  FunctionArn:
+    Value:
+      Fn::GetAtt:
+      - VisitorCountFunction
+      - Arn
