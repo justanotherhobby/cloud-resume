@@ -12,7 +12,7 @@ class TestLambdaHandler(unittest.TestCase):
         }
         return mock_table
 
-    @patch("lamda_function.dynamodb")
+    @patch("lambda_function.dynamodb")
     def test_returns_incremented_count(self, mock_dynamo):
         mock_dynamo.Table.return_value = self._make_mock_table(42)
 
@@ -23,16 +23,16 @@ class TestLambdaHandler(unittest.TestCase):
         body = json.loads(result["body"])
         self.assertEqual(body["count"], 42)
 
-    @patch("lamda_function.dynamodb")
+    @patch("lambda_function.dynamodb")
     def test_cors_header_present(self, mock_dynamo):
         mock_dynamo.Table.return_value = self._make_mock_table(1)
 
-        from lamda_function import lambda_handler
+        from lambda_function import lambda_handler
         result = lambda_handler({}, {})
 
         self.assertIn("Access-Control-Allow-Origin", result["headers"])
 
-    @patch("lamda_function.dynamodb")
+    @patch("lambda_function.dynamodb")
     def test_dynamodb_error_returns_500(self, mock_dynamo):
         from botocore.exceptions import ClientError
         mock_table = MagicMock()
@@ -41,7 +41,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
         mock_dynamo.Table.return_value = mock_table
 
-        from lamda_function import lambda_handler
+        from lambda_function import lambda_handler
         result = lambda_handler({}, {})
 
         self.assertEqual(result["statusCode"], 500)
