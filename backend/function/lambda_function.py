@@ -37,7 +37,7 @@ def lambda_handler(event, context):
 def cors_headers():
     return {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",   # tighten to your domain in prod
+        "Access-Control-Allow-Origin": "*",   # tighten to your domain in production
         "Access-Control-Allow-Methods": "GET,OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
     }
